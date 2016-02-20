@@ -7,11 +7,10 @@ todo:
 
 problems:
 - 500 like per day limit
-- sometimes: Maximum execution time of 30 seconds exceeded in /vk_annoy.php on line 'curl_exec'
 
 requires:
 - php5 (5.6.8-1 - my version)
 - php5-mod-curl (5.6.8-1)
 - php5-mod-json (5.6.17-1)
 
-Tested on TP-Link TL-MR3220 v1 with OpenWrt Chaos Calmer 15.05 
+Developed ( in vi editor :) & Tested on TP-Link TL-MR3220 v1 with OpenWrt Chaos Calmer 15.05 
