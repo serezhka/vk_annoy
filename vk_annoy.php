@@ -10,25 +10,34 @@ function doCurlRequest($url){
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_HEADER, false);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+#  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
   curl_setopt($ch, CURLOPT_USERAGENT, $useragent);
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
   $data = curl_exec($ch);
+  if(curl_errno($ch)) {
+    echo 'curl error:'.curl_error($ch).PHP_EOL;
+    $data = NULL;
+  }
   curl_close($ch);
-  echo $data, PHP_EOL;
   return $data;
 }
 
-while ( true ) {
+set_time_limit(0);
+
+while (true) {
   ob_flush();
   flush();
   $userinfo = doCurlRequest('https://api.vk.com/method/users.get?user_id='.$userid.'&fields=online&v=5.45&access_token='.$accesstoken);
-  $userinfo = json_decode($userinfo);
-  if ( $userinfo->response[0]->online > 0 ) {
-    doCurlRequest('https://api.vk.com/method/likes.add?owner_id='.$userid.'&item_id='.$postid.'&type=post&v=5.45&access_token='.$accesstoken);
-    sleep(5);
-    doCurlRequest('https://api.vk.com/method/likes.delete?owner_id='.$userid.'&item_id='.$postid.'&type=post&v=5.45&access_token='.$accesstoken);
+  if (!is_null($userinfo)) {
+    $userinfo = json_decode($userinfo);
+    if ($userinfo->response[0]->online > 0) {
+      echo 'Victim ' . $userinfo->response[0]->first_name . ' is online' . PHP_EOL;
+      echo 'Like post with id = ' . $postid . PHP_EOL;
+      doCurlRequest('https://api.vk.com/method/likes.add?owner_id='.$userid.'&item_id='.$postid.'&type=post&v=5.45&access_token='.$accesstoken);
+      sleep(5);
+      doCurlRequest('https://api.vk.com/method/likes.delete?owner_id='.$userid.'&item_id='.$postid.'&type=post&v=5.45&access_token='.$accesstoken);
+    }
   }
   sleep(15);
 }
