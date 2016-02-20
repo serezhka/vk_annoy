@@ -7,6 +7,7 @@ todo:
 
 problems:
 - 500 like per day limit
+- sometimes: Maximum execution time of 30 seconds exceeded in /vk_annoy.php on line 'curl_exec'
 
 requires:
 - php5 (5.6.8-1 - my version)
