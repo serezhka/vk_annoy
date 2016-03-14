@@ -11,8 +11,10 @@ requires:
 - php5 (5.6.8-1 - my version)
 - php5-mod-curl (5.6.8-1)
 - php5-mod-json (5.6.17-1)
+- zoneinfo-core, zoneinfo-europe (2015d-1)
 
 notes:
 - set [implicit_flush = On, output_buffering = Off] in php.ini to see script output
+- chmod -R a+w log 
 
 Developed ( in vi editor :) & Tested on TP-Link TL-MR3220 v1 with OpenWrt Chaos Calmer 15.05 
