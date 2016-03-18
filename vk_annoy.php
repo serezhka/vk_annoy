@@ -26,41 +26,50 @@ function doCurlRequest($url){
   return $data;
 }
 
+function logMessage($log, $message) {
+  if (filesize($log) > 1000000) {
+	  $log += 'o';
+	  logMessage($message);
+  }
+  $log_message = '['.date('Y-m-d H:i:s T', time()).'] ' . $message . ' <br>' . PHP_EOL;
+  echo $log_message;
+  file_put_contents($log, $log_message, FILE_APPEND);
+}
+
 set_time_limit(0);
 date_default_timezone_set('Europe/Moscow');
 
 while (true) {
-  $userinfo = doCurlRequest('https://api.vk.com/method/users.get?user_id='.$userid.'&fields=online&v=5.45&access_token='.$accesstoken); 
-  if (!is_null($userinfo)) {
+  $userinfo = doCurlRequest('https://api.vk.com/method/users.get?user_id='.$userid.'&fields=online&v=5.50&access_token='.$accesstoken);
+  if (!is_null($userinfo)) {	
     $userinfo = json_decode($userinfo);
     if ($userinfo->response[0]->online > 0) {
-      $log_message = '['.date('Y-m-d H:i:s T', time()).'] Victim ' . $userinfo->response[0]->first_name . ' is online' . PHP_EOL;
-      echo $log_message;
-      file_put_contents($log, $log_message, FILE_APPEND);
-      # echo 'Like post with id = ' . $postid . PHP_EOL;
-      # doCurlRequest('https://api.vk.com/method/likes.add?owner_id='.$userid.'&item_id='.$postid.'&type=post&v=5.50&access_token='.$accesstoken);
-      # sleep(5);
-      # doCurlRequest('https://api.vk.com/method/likes.delete?owner_id='.$userid.'&item_id='.$postid.'&type=post&v=5.50&access_token='.$accesstoken);  
-      $log_message = '['.date('Y-m-d H:i:s T', time()).'] Add victim mention to post with id = ' . $postid . PHP_EOL; 
-      echo $log_message;
-      file_put_contents($log, $log_message, FILE_APPEND);
-      $commentid = doCurlRequest('https://api.vk.com/method/wall.addComment?owner_id='.$userid.'&post_id='.$postid.'&text='.$message.'&v=5.50&access_token='.$accesstoken);
-      $commentid = json_decode($commentid);
-      $commentid = $commentid->response->comment_id;
-      sleep(5);
-      doCurlRequest('https://api.vk.com/method/wall.deleteComment?owner_id='.$userid.'&comment_id='.$commentid.'&v=5.50&access_token='.$accesstoken);
-      $log_message = '['.date('Y-m-d H:i:s T', time()).'] Remove mention. Comment id = ' . $commentid . PHP_EOL;
-      echo $log_message;
-      file_put_contents($log, $log_message, FILE_APPEND);
+      logMessage($log, 'Victim ' . $userinfo->response[0]->first_name . ' is online'); 
+      $lastmessage = doCurlRequest('https://api.vk.com/method/messages.getHistory?user_id='.$userid.'&count=1&v=5.50&access_token='.$accesstoken);
+	  $lastmessage = json_decode($lastmessage);
+	  if ($lastmessage -> response -> items[0] -> read_state == 0) {
+	    logMessage($log, 'Last message is unread');	  
+        # echo 'Like post with id = ' . $postid . PHP_EOL;
+        # doCurlRequest('https://api.vk.com/method/likes.add?owner_id='.$userid.'&item_id='.$postid.'&type=post&v=5.50&access_token='.$accesstoken);
+        # sleep(5);
+        # doCurlRequest('https://api.vk.com/method/likes.delete?owner_id='.$userid.'&item_id='.$postid.'&type=post&v=5.50&access_token='.$accesstoken);  
+        logMessage($log, 'Add victim mention to post with id = ' . $postid);               
+        $commentid = doCurlRequest('https://api.vk.com/method/wall.addComment?owner_id='.$userid.'&post_id='.$postid.'&text='.$message.'&v=5.50&access_token='.$accesstoken);
+        $commentid = json_decode($commentid);
+        $commentid = $commentid->response->comment_id;
+        sleep(3);
+        doCurlRequest('https://api.vk.com/method/wall.deleteComment?owner_id='.$userid.'&comment_id='.$commentid.'&v=5.50&access_token='.$accesstoken);
+        logMessage($log, 'Remove mention. Comment id = ' . $commentid);
+	  } else {
+		  logMessage($log, 'Last message is read');
+	  }	  
     } else {
-      $log_message = '['.date('Y-m-d H:i:s T', time()).'] Victim ' . $userinfo->response[0]->first_name . ' is offline' . PHP_EOL;
-      echo $log_message;
-      file_put_contents($log, $log_message, FILE_APPEND);
+      logMessage($log, 'Victim ' . $userinfo->response[0]->first_name . ' is offline');          
     }
     flush();
     ob_flush();
   }
-  sleep(20);
+  sleep(15);
 }
 
 ?>
