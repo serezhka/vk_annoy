@@ -46,8 +46,8 @@ while (true) {
     if ($userinfo->response[0]->online > 0) {
       logMessage($log, 'Victim ' . $userinfo->response[0]->first_name . ' is online'); 
       $lastmessage = doCurlRequest('https://api.vk.com/method/messages.getHistory?user_id='.$userid.'&count=1&v=5.50&access_token='.$accesstoken);
-	  $lastmessage = json_decode($lastmessage);
-	  if ($lastmessage -> response -> items[0] -> read_state == 0) {
+	  $lastmessage = json_decode($lastmessage) -> response -> items[0];
+	  if (($lastmessage  -> read_state == 0) && ($lastmessage -> out == 1)) {
 	    logMessage($log, 'Last message is unread');	  
         # echo 'Like post with id = ' . $postid . PHP_EOL;
         # doCurlRequest('https://api.vk.com/method/likes.add?owner_id='.$userid.'&item_id='.$postid.'&type=post&v=5.50&access_token='.$accesstoken);
