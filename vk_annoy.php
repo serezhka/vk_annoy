@@ -1,5 +1,7 @@
 <?php
 
+header('Content-Type: text/html; charset=utf-8');
+
 $userid = ''; # target id (victim)
 $accesstoken = ''; # for access to the victim
 $postid = ''; # target post id
@@ -33,7 +35,7 @@ function logMessage($log, $message) {
   }
   $log_message = '['.date('Y-m-d H:i:s T', time()).'] ' . $message . ' <br>' . PHP_EOL;
   echo $log_message;
-  file_put_contents($log, $log_message, FILE_APPEND);
+  file_put_contents($log, "\xEF\xBB\xBF" . $log_message, FILE_APPEND);
 }
 
 set_time_limit(0);
